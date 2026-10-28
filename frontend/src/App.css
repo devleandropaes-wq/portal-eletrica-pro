@@ -1,0 +1,41 @@
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.motor-spin {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: motor-spin 0.7s linear infinite;
+}
+
+@keyframes motor-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wire-phase {
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.85));
+}
+
+.lamp-glow {
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.95));
+}
+
+.fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.blink {
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to { visibility: hidden; }
+}

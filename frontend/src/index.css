@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: "IBM Plex Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #0A0E17;
+}
+
+@layer base {
+    :root {
+        --background: 222 39% 7%;
+        --foreground: 210 20% 98%;
+        --card: 221 39% 11%;
+        --card-foreground: 210 20% 98%;
+        --popover: 221 39% 11%;
+        --popover-foreground: 210 20% 98%;
+        --primary: 38 92% 50%;
+        --primary-foreground: 222 47% 11%;
+        --secondary: 215 28% 17%;
+        --secondary-foreground: 210 20% 98%;
+        --muted: 215 28% 17%;
+        --muted-foreground: 218 11% 65%;
+        --accent: 215 28% 17%;
+        --accent-foreground: 210 20% 98%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 210 20% 98%;
+        --border: 217 19% 22%;
+        --input: 217 19% 22%;
+        --ring: 38 92% 50%;
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    h1, h2, h3, h4 {
+        font-family: "Outfit", sans-serif;
+    }
+    ::selection {
+        background: rgba(245, 158, 11, 0.35);
+    }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit;
+        margin-right: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+        padding-left: inherit;
+        padding-right: inherit;
+        padding-top: inherit;
+        padding-bottom: inherit;
+        column-gap: inherit;
+        row-gap: inherit;
+        gap: inherit;
+        border-left-width: inherit;
+        border-right-width: inherit;
+        border-top-width: inherit;
+        border-bottom-width: inherit;
+        border-left-style: inherit;
+        border-right-style: inherit;
+        border-top-style: inherit;
+        border-bottom-style: inherit;
+        border-left-color: inherit;
+        border-right-color: inherit;
+        border-top-color: inherit;
+        border-bottom-color: inherit;
+    }
+}

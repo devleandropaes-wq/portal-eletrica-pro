@@ -1,0 +1,185 @@
+{
+  "project_name": "Portal Elétrica Pro",
+  "app_type": "engineering_tool_dashboard",
+  "theme": {
+    "default": "dark",
+    "background": "#0A0E17",
+    "surface": "#111827",
+    "surface_elevated": "#1F2937",
+    "border": "#2D3748",
+    "border_focus": "#3B82F6",
+    "primary": "#F59E0B",
+    "primary_hover": "#D97706",
+    "primary_foreground": "#0F172A",
+    "secondary": "#3B82F6",
+    "accent_active": "#10B981",
+    "accent_danger": "#EF4444",
+    "accent_warning": "#F59E0B",
+    "accent_neutral": "#6B7280",
+    "text_primary": "#F9FAFB",
+    "text_secondary": "#9CA3AF",
+    "text_muted": "#6B7280"
+  },
+  "typography": {
+    "headings": "Outfit, DM Sans, sans-serif",
+    "body": "Inter, DM Sans, sans-serif",
+    "mono": "JetBrains Mono, IBM Plex Mono, monospace",
+    "scale": {
+      "h1": "text-3xl sm:text-4xl font-bold tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-medium",
+      "h4": "text-lg font-medium",
+      "body": "text-sm sm:text-base leading-relaxed",
+      "caption": "text-xs font-mono uppercase tracking-wider text-slate-400"
+    }
+  },
+  "layout": {
+    "structure": "Sidebar + Main Canvas/Panel Grid",
+    "sidebar": {
+      "width_expanded": "w-64",
+      "width_collapsed": "w-20",
+      "background": "bg-[#0F172A]",
+      "border": "border-r border-slate-800",
+      "sections": [
+        {
+          "group": "Módulos Técnicos",
+          "items": [
+            "Comandos Elétricos (Editor Drag & Drop)",
+            "Simulador de QDC",
+            "Dimensionamento NBR 5410",
+            "Meus Projetos"
+          ]
+        },
+        {
+          "group": "Gestão SaaS (Admin)",
+          "items": [
+            "Painel de Licenciamento",
+            "Gestão de Clientes",
+            "Créditos & Validade"
+          ]
+        }
+      ]
+    },
+    "main_content": "flex-1 overflow-y-auto bg-[#0A0E17] p-6"
+  },
+  "modules": {
+    "auth_and_licensing": {
+      "roles": ["admin", "client"],
+      "states": ["active", "blocked", "expired"],
+      "expired_screen": {
+        "title": "Acesso Expirado",
+        "message": "Sua assinatura de 30 dias expirou. Entre em contato com o administrador para renovar seus créditos.",
+        "cta": "Contatar Administrador (WhatsApp / Suporte)"
+      },
+      "admin_panel": {
+        "features": [
+          "Lista de Clientes com busca e filtro por status",
+          "Formulário modal de criação de novo usuário/técnico",
+          "Botão de ação rápida 'Adicionar 1 Crédito (+30 dias)' com feedback visual sonner",
+          "Toggle de ativação/bloqueio imediato (Status Active / Blocked)"
+        ]
+      }
+    },
+    "comandos_eletricos": {
+      "mode": ["Edição", "Simulação"],
+      "symbols_standard": "IEC 60617 / ABNT",
+      "components": [
+        {"type": "disjuntor_fusivel", "label": "Disjuntor / Fusível", "terminals": ["1", "2"]},
+        {"type": "botoeira_na", "label": "Botoeira Ligar (NA)", "terminals": ["3", "4"]},
+        {"type": "botoeira_nf", "label": "Botoeira Desligar (NF)", "terminals": ["1", "2"]},
+        {"type": "contator", "label": "Contator (Bobina A1-A2, Selo 13-14, Carga 1-2, 3-4, 5-6)", "terminals": ["A1", "A2", "13", "14", "1", "2", "3", "4", "5", "6"]},
+        {"type": "rele_termico", "label": "Relé Térmico", "terminals": ["95", "96", "97", "98"]},
+        {"type": "lampada_sinalizacao", "label": "Lâmpada de Sinalização", "terminals": ["X1", "X2"]},
+        {"type": "motor_trifasico", "label": "Motor Trifásico", "terminals": ["U1", "V1", "W1"]}
+      ],
+      "canvas_features": [
+        "Grid ortogonal SVG snap-to-grid",
+        "Arrasto livre de componentes da paleta lateral",
+        "Conexão interativa clicando e arrastando entre terminais visíveis (pins)",
+        "Seleção e exclusão rápida de fios ou componentes (tecla Delete / ícone Lixeira)",
+        "Simulação em tempo real: Bobina energizada fecha contatos 13-14 e 1-2/3-4/5-6",
+        "Animação SVG do motor girando com indicador de RPM e corrente de partida",
+        "Efeito de brilho neon (glow) na lâmpada acesa (Verde = Operação, Vermelho = Falha Térmica)"
+      ]
+    },
+    "simulador_qdc": {
+      "main_breaker": ["Monofásico (1P)", "Bifásico (2P)", "Trifásico (3P)"],
+      "protection_devices": [
+        "Disjuntor Geral",
+        "Interruptor Diferencial Residual (DR 30mA) com botão 'TESTE'",
+        "Dispositivo de Proteção contra Surtos (DPS)"
+      ],
+      "divisional_breakers": [
+        "Circuito 1: Iluminação Social (10A)",
+        "Circuito 2: TUGs Sala/Quartos (16A)",
+        "Circuito 3: TUGs Cozinha/Serviço (20A)",
+        "Circuito 4: TUE Chuveiro 127V/220V (32A)",
+        "Circuito 5: TUE Ar Condicionado (20A)"
+      ],
+      "interactive_panel": [
+        "Chaves alavanca ON/OFF por disjuntor com indicação visual verde/vermelha",
+        "Medidor digital em tempo real: Corrente Total (A), Potência Total (W), Fator de Potência",
+        "Barra de Cargas com indicador de sobrecarga e desarme automático da proteção se ultrapassar a capacidade"
+      ]
+    },
+    "dimensionamento_nbr_5410": {
+      "steps": [
+        "Passo 1: Tipo de ambiente e área (m²) / perímetro (m)",
+        "Passo 2: Tensão do sistema (127V ou 220V Mono/Bi)",
+        "Passo 3: Potência de Iluminação e Quantidade de TUGs (Tomadas Uso Geral)",
+        "Passo 4: TUEs específicas (Chuveiro, Torneira Elétrica, Ar Condicionado)",
+        "Passo 5: Comprimento do circuito (m) para cálculo de queda de tensão"
+      ],
+      "outputs": [
+        "Corrente de Projeto (Ib) em Ampères",
+        "Bitola mínima do condutor em mm² (Tabela NBR 5410 Métodos de Instalação B1/B2)",
+        "Disjuntor comercial recomendado (In em A)",
+        "Porcentagem de Queda de Tensão (ΔV%) com aviso de conformidade (< 4%)"
+      ]
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-md bg-slate-900/80 border border-slate-800",
+    "glowing_active": "shadow-[0_0_15px_rgba(245,158,11,0.3)] border-amber-500",
+    "wire_energized": "stroke-amber-400 stroke-[3px] filter drop-shadow-[0_0_6px_rgba(245,158,11,0.8)]",
+    "wire_neutral": "stroke-blue-400 stroke-[2px]",
+    "wire_deenergized": "stroke-slate-600 stroke-[2px] stroke-dasharray-[4]",
+    "motor_running": "animate-spin-slow duration-700 text-amber-400"
+  },
+  "testing_strategy": {
+    "required_data_testids": [
+      "sidebar-nav",
+      "sidebar-link-comandos",
+      "sidebar-link-qdc",
+      "sidebar-link-dimensionamento",
+      "sidebar-link-projetos",
+      "sidebar-link-admin",
+      "admin-user-table",
+      "admin-add-user-button",
+      "admin-add-credit-button",
+      "admin-toggle-status-button",
+      "canvas-comandos",
+      "sim-mode-toggle",
+      "btn-start-simulation",
+      "btn-reset-simulation",
+      "qdc-dr-test-button",
+      "qdc-main-breaker-switch",
+      "qdc-load-meter",
+      "nbr-step1-next",
+      "nbr-step2-next",
+      "nbr-calculate-btn",
+      "nbr-result-ib",
+      "nbr-result-bitola",
+      "nbr-result-disjuntor",
+      "expired-access-banner"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Ensure all text is in Brazilian Portuguese (PT-BR).",
+    "Default theme must be Dark Mode with obsidian black background (#0A0E17) and tactical gold/amber (#F59E0B) primary highlights.",
+    "Implement full drag-and-drop wire wiring logic between SVG terminal nodes in the Comandos Elétricos module.",
+    "Ensure all interactive buttons, inputs, canvas nodes, and simulation components carry data-testid attributes.",
+    "Use Sonner for user toasts and feedback notifications.",
+    "Support complete license control (Admin panel can add 30 days credit, block/unblock users, and simulate expired state)."
+  ]
+}
