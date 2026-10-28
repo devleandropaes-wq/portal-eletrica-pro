@@ -137,10 +137,14 @@ class LoginIn(BaseModel):
 @api.post("/auth/login")
 async def login(body: LoginIn, request: Request, response: Response):
     email = body.email.lower().strip()
-    ident = f"{request.client.host if request.client else 'x'}:{email}"
+    ident = email
     att = await db.login_attempts.find_one({"identifier": ident})
-    if att and att.get("count", 0) >= 5 and parse_dt(att.get("locked_until")) and parse_dt(att["locked_until"]) > now_utc():
+    locked = parse_dt(att.get("locked_until")) if att else None
+    if locked and locked > now_utc():
         raise HTTPException(429, "Muitas tentativas. Tente novamente em 15 minutos.")
+    if locked:
+        await db.login_attempts.delete_many({"identifier": ident})
+        att = None
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(body.password, user["password_hash"]):
         count = (att.get("count", 0) if att else 0) + 1
@@ -227,6 +231,8 @@ async def add_credit(user_id: str, _: dict = Depends(require_admin)):
     u = await db.users.find_one({"_id": oid(user_id)})
     if not u:
         raise HTTPException(404, "Usuário não encontrado")
+    if u.get("role") == "admin":
+        raise HTTPException(400, "Administradores não precisam de créditos")
     exp = parse_dt(u.get("expires_at"))
     base = exp if exp and exp > now_utc() else now_utc()
     new_exp = (base + timedelta(days=30)).isoformat()

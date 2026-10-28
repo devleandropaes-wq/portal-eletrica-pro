@@ -112,7 +112,7 @@ const Result = ({ f, r }) => (
     </div>
     <div className="grid gap-4 text-sm md:grid-cols-3">
       <p className="rounded-md border border-slate-800 p-3 text-slate-400">Potência total: <b className="text-slate-100" data-testid="nbr-result-power">{fmt(r.P, 0)} VA</b><br />Ilum. {r.pIlum} · TUG {r.pTug} · TUE {r.pTue}</p>
-      <p className="rounded-md border border-slate-800 p-3 text-slate-400">Seção mínima ({r.tipo === "iluminacao" ? "iluminação" : "força"}): <b className="text-slate-100">{fmt(r.minSec, 1)} mm²</b><br />Por capacidade: {r.byCap ?? "—"} mm² · Por queda: {r.byDrop ?? "—"} mm²</p>
+      <p className="rounded-md border border-slate-800 p-3 text-slate-400">Seção mínima ({r.tipo === "iluminacao" ? "iluminação" : "força"}): <b className="text-slate-100">{fmt(r.minSec, 1)} mm²</b><br />Por capacidade: {r.byCap ? fmt(r.byCap, 1) : "—"} mm² · Por queda: {r.byDrop ? fmt(r.byDrop, 1) : "—"} mm²</p>
       <p className="rounded-md border border-slate-800 p-3 text-slate-400">Coordenação Ib ≤ In ≤ Iz:<br /><b className="font-mono text-slate-100">{fmt(r.Ib)} ≤ {r.In ?? "—"} ≤ {r.Iz ?? "—"} A</b> (FCA {r.fca})</p>
     </div>
     {r.warnings.map((w) => (
@@ -142,7 +142,7 @@ const CircuitList = ({ list, onRemove }) => (
       <div key={i} className="flex items-center gap-3 border-b border-slate-800/60 px-4 py-3 text-sm last:border-0" data-testid={`nbr-circuit-item-${i}`}>
         <span className="font-mono text-xs text-amber-500">C{i + 1}</span>
         <div className="min-w-0 flex-1"><p className="truncate">{c.input.name}</p><p className="font-mono text-xs text-slate-500">{c.input.voltage} V · {fmt(c.result.P, 0)} VA · Ib {fmt(c.result.Ib)} A</p></div>
-        <span className="font-mono text-xs text-slate-300">{c.result.section ?? "—"} mm² · {c.result.In ?? "—"} A</span>
+        <span className="font-mono text-xs text-slate-300">{c.result.section ? fmt(c.result.section, 1) : "—"} mm² · {c.result.In ?? "—"} A</span>
         <button onClick={() => onRemove(i)} className="text-slate-500 hover:text-red-400" data-testid={`nbr-circuit-remove-${i}`}><Trash2 className="h-4 w-4" /></button>
       </div>
     ))}

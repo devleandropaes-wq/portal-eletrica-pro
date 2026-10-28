@@ -57,7 +57,7 @@ const Lever = ({ on, onClick, tid, size = "h-14" }) => (
 
 const Module = ({ w = "w-24", title, sub, children, tid, alert }) => (
   <div className={`${w} flex shrink-0 flex-col items-center gap-2 rounded-md border ${alert ? "border-red-500/60" : "border-slate-600"} bg-gradient-to-b from-slate-200 to-slate-300 p-2 text-slate-900`} data-testid={tid}>
-    <p className="w-full truncate text-center text-[10px] font-bold uppercase">{title}</p>
+    <p className="w-full truncate text-center text-[10px] font-bold uppercase" title={title}>{title}</p>
     {children}
     <p className="w-full truncate text-center font-mono text-[10px]">{sub}</p>
   </div>

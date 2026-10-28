@@ -1,0 +1,44 @@
+{
+  "summary": "First full E2E run of Portal Elétrica Pro (backend pytest + Playwright UI on public URL). Backend 16/17 passed: auth (cookies httpOnly/secure/samesite=none, case-insensitive email, bcrypt $2b$), admin CRUD/credit/toggle/self-block guard, blocked/expired 403 with detail.code, projects CRUD + per-user isolation, CORS with explicit origin + credentials. Only failure: brute-force lockout is unreliable behind the k8s ingress. Frontend: all requested flows worked — login/errors, admin panel (create via dialog, +credit 1->2 & +30 days, block/activate, self-toggle disabled, search), client sees no 'Painel Admin' and /admin redirects to /, blocked user -> /acesso-expirado 'Acesso Bloqueado', 0-credit user -> 'Acesso Expirado', mailto contact link, Comandos example (8 comps/19 wires, checklist all green, hold S1 -> K1 ENERGIZADA/M1 LIGADO/H1 ACESA, seal after release, S0 off, F1 trip off, Q1 off blocks start), editor (palette click + HTML5 drag-drop, component move, terminal-to-terminal wiring, wire select+delete, Delete key on component removes it and its wires), project save -> Meus Projetos -> reopen -> delete, QDC (breaker toggle, DR test de-energizes bus & rearm, 2000W on 10A circuit trips it, 3 extra chuveiros trip main 73.2A>63A with qdc-main-tripped, meter updates for 1P/2P/3P, DPS surge, save), NBR 5410 (Cozinha 127V 4x600VA, 15m -> Ib 18,90A, 20A, 2,5mm², ΔV 3,19%; add to list, save, reopen), mobile menu at 390px.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/auth/login", "issue": "Brute-force lockout keyed on request.client.host, which is the ingress pod IP (it rotates: saw 10.79.138.5 and 10.79.138.2 for the same client). The counters split across IPs, so 6+ wrong attempts still return 401 and the 5-attempt lockout is unreliable or bypassable. Fix: use the first IP in X-Forwarded-For, or key only on email.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/auth/login", "issue": "When locked_until expires the count is not reset, so the next single wrong attempt locks the account for 15 more minutes right away (count>=5). Reset count when the lock has expired."},
+      {"endpoint": "POST /api/admin/users/{id}/credit", "issue": "Works on admin accounts too: it increments credits and sets expires_at on the admin, which is meaningless. The UI also shows the 'Adicionar 1 Crédito' button on admin rows. Consider hiding it or rejecting it for role=admin."},
+      {"endpoint": "POST /api/auth/refresh", "issue": "Does not check blocked status. Not exploitable, because protected routes use require_active."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All pages with ProjectBar (top-right)", "issues": ["Sonner toasts (position top-right) cover the Salvar/Novo buttons in the page header for several seconds after each action. Consider bottom-right or a top offset."]},
+      {"screen": "QDC", "issues": ["Breaker module titles truncate heavily (e.g. 'C4 · CHUVE...'). Consider a tooltip/title attribute."]},
+      {"screen": "NBR 5410 result", "issues": ["Number format is inconsistent: big cards use pt-BR comma (2,5 mm²) but 'Por capacidade/Por queda' and the Quadro de cargas list show dot (2.5 mm²)."]},
+      {"screen": "Comandos mobile (390px)", "issues": ["The palette stacks above the canvas, so the user must scroll a long way to reach the canvas. Usable but cramped. Optional: collapsible palette."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_portal_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Fix the login lockout identifier: use the X-Forwarded-For first hop or email-only, so 5 failed attempts reliably lock (currently 6 fails all return 401).",
+    "Reset the login_attempts count after locked_until has passed.",
+    "Hide or reject 'Adicionar 1 Crédito' for admin users.",
+    "Optional UX: move toasts so they don't cover the header Save button; use consistent pt-BR decimal formatting in NBR list/details."
+  ],
+  "critical_code_review_comments": [
+    "server.py login(): request.client.host behind the ingress is a proxy IP, so it breaks per-client lockout (verified in the login_attempts collection).",
+    "Qdc remove circuit uses setQ instead of commit, so the main-breaker re-evaluation is skipped (harmless since removing a load only reduces current).",
+    "Comandos/QDC/NBR state is lost on navigation with no unsaved-changes warning (minor).",
+    "Backend pytest.ini forces xdist (-n); tests that share a module cleanup fixture must run with -n 0 (cleanup in one worker deleted another worker's users)."
+  ],
+  "updated_files": ["/app/backend/tests/test_portal_api.py"],
+  "success_rate": {"backend": "94% (16/17)", "frontend": "100% of requested flows"},
+  "test_credentials": "From /app/memory/test_credentials.md: admin devleandropaes@gmail.com / Le693261*, client leandro1000cruz@gmail.com / Teste123* (both remain active, passwords unchanged).",
+  "seed_data_creation": "Created TEST_* users and projects during the tests; all were deleted afterwards (users, projects, login_attempts cleaned).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run the backend tests with: export REACT_APP_BACKEND_URL=...; pytest /app/backend/tests/test_portal_api.py -n 0. Only test_bruteforce_lockout fails (ingress IP issue). The UI flows were all verified via data-testids (sim-press-S1 needs a mouse down/up hold, sim-status-K1/M1/H1, qdc-*, nbr-*). Project delete uses window.confirm, so register an async dialog handler.",
+  "rca of the issue": "Lockout: identifier = f'{request.client.host}:{email}'. In k8s, request.client.host is the ingress/proxy pod IP, and it varies between requests. Repro: send 6 wrong logins with curl, then look at db.login_attempts: two docs for the same email with different 10.x IPs (count 5 and 1), and the 6th request returns 401 instead of 429. Mitigation: derive the IP from X-Forwarded-For (first value) or key the lockout on the email only."
+}

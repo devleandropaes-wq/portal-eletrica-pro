@@ -104,10 +104,10 @@ const Row = ({ u, me, onUpdate }) => {
       <td className="px-4 py-3 font-mono text-sm" data-testid={`admin-user-credits-${u.id}`}>{u.credits}</td>
       <td className="px-4 py-3">
         <div className="flex flex-wrap justify-end gap-2">
-          <Button size="sm" disabled={busy} onClick={() => act("credit", (d) => `+30 dias para ${d.email} (até ${fmtDate(d.expires_at)})`)}
+          {u.role !== "admin" && <Button size="sm" disabled={busy} onClick={() => act("credit", (d) => `+30 dias para ${d.email} (até ${fmtDate(d.expires_at)})`)}
             className="bg-emerald-600 text-white hover:bg-emerald-500" data-testid={`admin-add-credit-button-${u.id}`}>
             <CalendarPlus className="mr-1 h-4 w-4" /> Adicionar 1 Crédito (+30 dias)
-          </Button>
+          </Button>}
           <Button size="sm" variant="outline" disabled={busy || u.id === me} onClick={() => act("toggle-status", (d) => `${d.email}: ${d.status === "active" ? "ativado" : "bloqueado"}`)}
             className={`bg-transparent ${u.status === "active" ? "border-red-500/40 text-red-400 hover:bg-red-500/10" : "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"}`}
             data-testid={`admin-toggle-status-button-${u.id}`}>
