@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { dimensionar, FCA } from "@/lib/nbr5410";
+import { memorialFromNbr } from "@/lib/memorial";
+import { MemorialButton } from "@/components/MemorialButton";
 
 const INIT = { name: "", voltage: 127, iluminacao: 0, tugQty: 0, tugVa: 100, tues: [], length: 15, grouping: 1, dropMax: 4 };
 const STEPS = ["Identificação", "Cargas", "Instalação", "Resultado"];
@@ -154,6 +156,7 @@ export default function Dimensionamento() {
   const [f, setF] = useState(INIT);
   const [result, setResult] = useState(null);
   const [list, setList] = useState([]);
+  const [projName, setProjName] = useState("Quadro de cargas");
   const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
 
   const next1 = () => { if (!f.name.trim()) return toast.error("Informe o nome do cômodo/circuito"); setStep(2); };
@@ -173,7 +176,8 @@ export default function Dimensionamento() {
   return (
     <div>
       <PageHeader eyebrow="Módulo · Residencial" title="Dimensionamento NBR 5410" desc="Calcule a corrente de projeto, a bitola do condutor e o disjuntor de cada circuito.">
-        <ProjectBar type="nbr" defaultName="Quadro de cargas" getData={() => ({ circuits: list })} onLoad={(d) => { setList(d?.circuits || []); restart(); }} />
+        <ProjectBar type="nbr" defaultName="Quadro de cargas" getData={() => ({ circuits: list })} onLoad={(d) => { setList(d?.circuits || []); restart(); }} onName={setProjName} />
+        <MemorialButton tid="nbr-memorial-button" load={() => memorialFromNbr({ circuits: list }, projName)} />
       </PageHeader>
       <div className="grid gap-6 p-4 sm:p-8 xl:grid-cols-[1fr_380px]">
         <div className="space-y-8 rounded-lg border border-slate-800 bg-[#111827] p-5 sm:p-8">

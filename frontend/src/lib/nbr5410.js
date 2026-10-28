@@ -6,6 +6,27 @@ export const BREAKERS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63, 70, 80, 100, 125
 export const FCA = { 1: 1, 2: 0.8, 3: 0.7, 4: 0.65, 5: 0.6, 6: 0.57 };
 const RHO = 1 / 56;
 
+function evalSections({ Ib, In, V, L, minSec, fca, dropMax }) {
+  return SECTIONS.map((S) => {
+    const Iz = +(IZ_B1[S] * fca).toFixed(1);
+    const dv = ((2 * RHO * L * Ib) / S / V) * 100;
+    const okMin = S >= minSec;
+    const okCap = Iz >= Ib;
+    const okProt = In !== null && In <= Iz;
+    const okDrop = dv <= dropMax;
+    return { S, Iz, dv, okMin, okCap, okProt, okDrop, ok: okMin && okCap && okProt && okDrop };
+  });
+}
+
+export function sizeCircuit({ power, voltage, length, lighting, breaker, grouping = 1, dropMax = 4 }) {
+  const V = Number(voltage);
+  const Ib = Number(power) / V;
+  const In = breaker || BREAKERS.find((b) => b >= Ib) || null;
+  const rows = evalSections({ Ib, In, V, L: Number(length || 0), minSec: lighting ? 1.5 : 2.5, fca: FCA[grouping] ?? 0.57, dropMax });
+  const chosen = rows.find((r) => r.ok);
+  return { Ib, In, section: chosen?.S ?? null, dv: chosen?.dv ?? null };
+}
+
 export function dimensionar({ voltage, iluminacao, tugQty, tugVa, tues, length, grouping, dropMax }) {
   const pTue = tues.reduce((s, t) => s + Number(t.power || 0), 0);
   const pIlum = Number(iluminacao || 0);
@@ -19,15 +40,7 @@ export function dimensionar({ voltage, iluminacao, tugQty, tugVa, tues, length, 
   const L = Number(length || 0);
   const In = BREAKERS.find((b) => b >= Ib) ?? null;
 
-  const rows = SECTIONS.map((S) => {
-    const Iz = +(IZ_B1[S] * fca).toFixed(1);
-    const dv = ((2 * RHO * L * Ib) / S / V) * 100;
-    const okMin = S >= minSec;
-    const okCap = Iz >= Ib;
-    const okProt = In !== null && In <= Iz;
-    const okDrop = dv <= dropMax;
-    return { S, Iz, dv, okMin, okCap, okProt, okDrop, ok: okMin && okCap && okProt && okDrop };
-  });
+  const rows = evalSections({ Ib, In, V, L, minSec, fca, dropMax });
   const chosen = rows.find((r) => r.ok) || null;
   const byCap = rows.find((r) => r.okMin && r.okCap)?.S ?? null;
   const byDrop = rows.find((r) => r.okMin && r.okDrop)?.S ?? null;

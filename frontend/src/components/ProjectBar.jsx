@@ -6,7 +6,7 @@ import { api, errMsg } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export const ProjectBar = ({ type, getData, onLoad, defaultName }) => {
+export const ProjectBar = ({ type, getData, onLoad, defaultName, onName }) => {
   const [params, setParams] = useSearchParams();
   const [id, setId] = useState(null);
   const [name, setName] = useState(defaultName);
@@ -20,6 +20,8 @@ export const ProjectBar = ({ type, getData, onLoad, defaultName }) => {
       .catch(() => toast.error("Projeto não encontrado"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
+
+  useEffect(() => { if (onName) onName(name); }, [name, onName]);
 
   const save = async () => {
     if (!name.trim()) return toast.error("Informe um nome para o projeto");

@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProjectBar } from "@/components/ProjectBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { memorialFromQdc } from "@/lib/memorial";
+import { MemorialButton } from "@/components/MemorialButton";
 
 const RATINGS = [25, 32, 40, 50, 63, 70, 80, 100];
 const BREAKERS = [6, 10, 13, 16, 20, 25, 32, 40, 50, 63];
@@ -17,7 +19,7 @@ const PRESETS = {
 const POLES = { 1: { label: "Monofásico", sys: "127 V · F+N", div: 127 }, 2: { label: "Bifásico", sys: "127/220 V · 2F+N", div: 220 }, 3: { label: "Trifásico", sys: "127/220 V · 3F+N", div: Math.sqrt(3) * 220 } };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
-const mk = (kind, extra = {}) => ({ id: uid(), ...PRESETS[kind], on: true, tripped: false, ...extra });
+const mk = (kind, extra = {}) => ({ id: uid(), kind, ...PRESETS[kind], length: 15, on: true, tripped: false, ...extra });
 const initial = () => ({
   main: { poles: 2, rating: 63, on: true, tripped: false },
   dr: { on: true },
@@ -95,6 +97,7 @@ const CircuitRow = ({ c, i, q, upd, remove }) => (
         {BREAKERS.map((b) => <option key={b} value={b}>{b} A</option>)}
       </select>
     </td>
+    <td className="px-3 py-2"><Input type="number" min="1" value={c.length ?? 15} onChange={(e) => upd({ length: Number(e.target.value) })} className="h-8 w-20 bg-slate-900" data-testid={`qdc-circuit-length-${i}`} /></td>
     <td className="px-3 py-2 font-mono text-xs">
       <span className={amps(c) > c.breaker ? "text-red-400" : "text-slate-300"}>{amps(c).toFixed(1)} A</span>
       {!supported(q, c) && <span className="block text-red-400">requer geral 2P/3P</span>}
@@ -105,6 +108,7 @@ const CircuitRow = ({ c, i, q, upd, remove }) => (
 
 export default function Qdc() {
   const [q, setQ] = useState(initial);
+  const [projName, setProjName] = useState("QDC residencial");
 
   const commit = (nq) => {
     const { next, events } = evaluate(nq);
@@ -129,7 +133,8 @@ export default function Qdc() {
   return (
     <div>
       <PageHeader eyebrow="Módulo · Quadros de Distribuição" title="Simulador de QDC" desc="Monte o quadro, ligue e desligue os disjuntores, teste o DR e acompanhe a carga total em tempo real.">
-        <ProjectBar type="qdc" defaultName="QDC residencial" getData={() => q} onLoad={load} />
+        <ProjectBar type="qdc" defaultName="QDC residencial" getData={() => q} onLoad={load} onName={setProjName} />
+        <MemorialButton tid="qdc-memorial-button" load={() => memorialFromQdc(q, projName)} />
       </PageHeader>
       <div className="grid gap-6 p-4 sm:p-8 xl:grid-cols-[1fr_340px]">
         <div className="space-y-6">
@@ -188,9 +193,9 @@ export default function Qdc() {
           </div>
 
           <div className="overflow-x-auto rounded-lg border border-slate-800 bg-[#111827]">
-            <table className="w-full min-w-[680px] text-left text-sm" data-testid="qdc-circuit-table">
+            <table className="w-full min-w-[780px] text-left text-sm" data-testid="qdc-circuit-table">
               <thead className="border-b border-slate-800 text-[10px] font-mono uppercase tracking-wider text-slate-500">
-                <tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Circuito</th><th className="px-3 py-2">Potência (W)</th><th className="px-3 py-2">Tensão</th><th className="px-3 py-2">Disjuntor</th><th className="px-3 py-2">Corrente</th><th /></tr>
+                <tr><th className="px-3 py-2">#</th><th className="px-3 py-2">Circuito</th><th className="px-3 py-2">Potência (W)</th><th className="px-3 py-2">Tensão</th><th className="px-3 py-2">Disjuntor</th><th className="px-3 py-2">Compr. (m)</th><th className="px-3 py-2">Corrente</th><th /></tr>
               </thead>
               <tbody>
                 {q.circuits.map((c, i) => <CircuitRow key={c.id} c={c} i={i} q={q} upd={(p) => updCircuit(c.id, p)} remove={() => setQ({ ...q, circuits: q.circuits.filter((x) => x.id !== c.id) })} />)}

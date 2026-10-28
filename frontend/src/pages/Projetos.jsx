@@ -5,6 +5,13 @@ import { toast } from "sonner";
 import { api, errMsg, fmtDate } from "@/lib/api";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { MemorialButton } from "@/components/MemorialButton";
+import { memorialFromNbr, memorialFromQdc } from "@/lib/memorial";
+
+const loadMemorial = async (p) => {
+  const { data } = await api.get(`/projects/${p.id}`);
+  return (p.type === "qdc" ? memorialFromQdc : memorialFromNbr)(data.data, data.name);
+};
 
 const TYPES = {
   comandos: { label: "Comandos", icon: Cpu, path: "/comandos" },
@@ -58,6 +65,7 @@ export default function Projetos() {
                     <p className="truncate font-medium text-slate-100 hover:text-amber-400">{p.name}</p>
                     <p className="text-xs font-mono text-slate-500">{t.label} · {fmtDate(p.updated_at)}</p>
                   </Link>
+                  {p.type !== "comandos" && <MemorialButton compact size="icon" tid={`project-memorial-${p.id}`} load={() => loadMemorial(p)} />}
                   <Button size="icon" variant="ghost" onClick={() => remove(p)} className="text-slate-500 hover:text-red-400" data-testid={`project-delete-${p.id}`}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               );
