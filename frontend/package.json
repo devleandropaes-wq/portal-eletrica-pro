@@ -67,7 +67,6 @@
     "build": "node --openssl-legacy-provider ./node_modules/@craco/craco/dist/bin/craco.js build",
     "test": "craco test"
   },
-  },
   "browserslist": {
     "production": [
       ">0.2%",
