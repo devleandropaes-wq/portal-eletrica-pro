@@ -3,5 +3,5 @@
   "outputDirectory": "frontend/build",
   "framework": "create-react-app",
   "installCommand": "cd frontend && npm install --legacy-peer-deps",
-  "nodeVersion": "18.x"
+ 
 }
