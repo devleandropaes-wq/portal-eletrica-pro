@@ -4,43 +4,38 @@ import { api } from "@/lib/api";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // Inicializa o utilizador assumindo que ele está sempre logado se houver registo,
-  // ou cria um utilizador padrão de administrador para nunca bloquear as telas.
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("portal_user");
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch {
-        // Se corromper, retorna um perfil padrão ativo
-      }
-    }
-    // Perfil padrão para garantir acesso total imediato enquanto resolvemos
-    return { name: "Administrador", email: "admin@portaleletrica.com", role: "admin", isAdmin: true };
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   const reload = useCallback(async () => {
-    const savedUser = localStorage.getItem("portal_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-        return;
-      } catch {}
+    try {
+      const { data } = await api.get("/auth/me");
+      setUser(data);
+      localStorage.setItem("portal_user", JSON.stringify(data));
+    } catch {
+      const savedUser = localStorage.getItem("portal_user");
+      if (!savedUser) {
+        setUser(false);
+      }
     }
-    // Mantém sempre ativo
-    setUser({ name: "Administrador", email: "admin@portaleletrica.com", role: "admin", isAdmin: true });
   }, []);
 
   useEffect(() => {
+    if (!user) {
+      reload();
+    }
     const out = () => {
       setUser(false);
       localStorage.removeItem("portal_user");
     };
-
     const access = (event) => {
       if (event.detail) {
         setUser(event.detail);
         localStorage.setItem("portal_user", JSON.stringify(event.detail));
+      } else {
+        reload();
       }
     };
 
@@ -50,31 +45,13 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener("auth:logout", out);
       window.removeEventListener("auth:access", access);
     };
-  }, []);
+  }, [reload, user]);
 
   const login = async (email, password) => {
-    try {
-      const response = await api.post("/auth/login", { email, password });
-      const responseData = response.data;
-      let userData = responseData.user || responseData;
-      
-      if (responseData.token && !userData.token) {
-        userData.token = responseData.token;
-      }
-      
-      userData.isAdmin = true;
-      userData.role = "admin";
-
-      setUser(userData);
-      localStorage.setItem("portal_user", JSON.stringify(userData));
-      return userData;
-    } catch (error) {
-      // Fallback de login local caso o backend estático recuse a rota de login
-      const dummyUser = { email, name: "Utilizador", role: "admin", isAdmin: true, token: "local-token" };
-      setUser(dummyUser);
-      localStorage.setItem("portal_user", JSON.stringify(dummyUser));
-      return dummyUser;
-    }
+    const { data } = await api.post("/auth/login", { email, password });
+    setUser(data);
+    localStorage.setItem("portal_user", JSON.stringify(data));
+    return data;
   };
 
   const logout = async () => {
