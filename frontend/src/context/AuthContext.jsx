@@ -4,14 +4,15 @@ import { api } from "@/lib/api";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  // Inicialização segura compatível com telemóvel
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem("portal_user");
       if (savedUser) {
         return JSON.parse(savedUser);
       }
-    } catch {
-      // Ignora erros de leitura do localStorage no telemóvel
+    } catch (e) {
+      console.error("Erro ao ler localStorage:", e);
     }
     return null;
   });
@@ -22,9 +23,10 @@ export const AuthProvider = ({ children }) => {
       if (data) {
         setUser(data);
         localStorage.setItem("portal_user", JSON.stringify(data));
+        return;
       }
     } catch {
-      // No telemóvel, se a API falhar, NUNCA desloga se já houver dados salvos localmente
+      // No telemóvel, se a rota falhar por ser estática, mantém o utilizador logado pelo localStorage
       const savedUser = localStorage.getItem("portal_user");
       if (savedUser) {
         try {
@@ -32,8 +34,8 @@ export const AuthProvider = ({ children }) => {
           return;
         } catch {}
       }
-      setUser(false);
     }
+    setUser(false);
   }, []);
 
   useEffect(() => {
@@ -62,18 +64,14 @@ export const AuthProvider = ({ children }) => {
     const responseData = response.data;
     let userData = responseData.user || responseData;
 
-    // Assegura as permissões de admin se for o seu email
+    // Assegura as permissões de admin para destravar o painel imediatamente
     if (email.toLowerCase().includes("admin") || userData.role === "admin") {
       userData.isAdmin = true;
       userData.role = "admin";
     }
 
     setUser(userData);
-    try {
-      localStorage.setItem("portal_user", JSON.stringify(userData));
-    } catch (e) {
-      console.error("Erro ao gravar no localStorage do telemóvel", e);
-    }
+    localStorage.setItem("portal_user", JSON.stringify(userData));
     return userData;
   };
 
