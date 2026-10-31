@@ -48,10 +48,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    const response = await api.post("/auth/login", { email, password });
     
-    // Garante que o objeto guardado inclui os dados necessários para o Admin
-    const userData = data.user || data; 
+    // Captura os dados do utilizador independentemente de vir em response.data.user ou direto em response.data
+    const responseData = response.data;
+    const userData = responseData.user || responseData;
+
+    // Se a API retornar um token separado, garante que ele fica anexado ao objeto do utilizador
+    if (responseData.token && !userData.token) {
+      userData.token = responseData.token;
+    }
+
     setUser(userData);
     localStorage.setItem("portal_user", JSON.stringify(userData));
     return userData;
