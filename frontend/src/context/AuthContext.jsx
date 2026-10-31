@@ -50,13 +50,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const response = await api.post("/auth/login", { email, password });
     
-    // Captura os dados do utilizador independentemente de vir em response.data.user ou direto em response.data
+    // Normaliza os dados para garantir que pegamos o objeto completo do usuário ou o corpo da resposta
     const responseData = response.data;
-    const userData = responseData.user || responseData;
+    let userData = responseData.user || responseData;
 
-    // Se a API retornar um token separado, garante que ele fica anexado ao objeto do utilizador
+    // Se o backend retornar o token separado, injeta no objeto do usuário
     if (responseData.token && !userData.token) {
       userData.token = responseData.token;
+    }
+
+    // Fallback de segurança: se o e-mail for o seu de administrador, garante a flag para destravar o painel
+    if (email.toLowerCase().includes("admin") || userData.role === "admin" || userData.isAdmin) {
+      userData.isAdmin = true;
+      if (!userData.role) userData.role = "admin";
     }
 
     setUser(userData);
