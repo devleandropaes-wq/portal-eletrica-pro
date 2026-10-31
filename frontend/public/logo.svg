@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Fundo Escuro Arredondado (Padrão App) -->
+  <rect width="512" height="512" rx="112" fill="#121518" />
+  
+  <!-- Letra E Minimalista Estilizada com Eletricidade e Módulo DIN -->
+  <g transform="translate(116, 80)">
+    <!-- Raio / Haste Vertical -->
+    <path d="M70 30L20 180H120L70 330" fill="none" stroke="#00F0FF" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
+    
+    <!-- Barras Horizontais Superiores do "E" -->
+    <path d="M120 70H280M120 150H240" fill="none" stroke="#00FF9D" stroke-width="32" stroke-linecap="round" />
+    
+    <!-- Base com detalhe de Disjuntor / Módulo DIN -->
+    <rect x="70" y="240" width="210" height="70" rx="12" fill="none" stroke="#00F0FF" stroke-width="24" />
+    <circle cx="125" cy="275" r="8" fill="#00FF9D" />
+    <circle cx="225" cy="275" r="8" fill="#00FF9D" />
+  </g>
+</svg>
