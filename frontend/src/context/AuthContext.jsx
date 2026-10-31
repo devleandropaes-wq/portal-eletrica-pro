@@ -5,7 +5,6 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Recupera o utilizador do localStorage de forma segura
     const savedUser = localStorage.getItem("portal_user");
     try {
       return savedUser ? JSON.parse(savedUser) : false;
@@ -15,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   });
 
   const reload = useCallback(async () => {
-    // Como é um app estático, apenas revalida o que está no localStorage
     const savedUser = localStorage.getItem("portal_user");
     if (savedUser) {
       try {
@@ -51,9 +49,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
-    setUser(data);
-    localStorage.setItem("portal_user", JSON.stringify(data));
-    return data;
+    
+    // Garante que o objeto guardado inclui os dados necessários para o Admin
+    const userData = data.user || data; 
+    setUser(userData);
+    localStorage.setItem("portal_user", JSON.stringify(userData));
+    return userData;
   };
 
   const logout = async () => {
