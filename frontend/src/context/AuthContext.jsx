@@ -5,43 +5,39 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Tenta recuperar o utilizador salvo no localStorage ao iniciar
+    // Recupera o utilizador do localStorage de forma segura
     const savedUser = localStorage.getItem("portal_user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      return savedUser ? JSON.parse(savedUser) : false;
+    } catch {
+      return false;
+    }
   });
 
   const reload = useCallback(async () => {
-    try {
-      const { data } = await api.get("/auth/me");
-      setUser(data);
-      localStorage.setItem("portal_user", JSON.stringify(data));
-    } catch (error) {
-      // Ignora erros de rede ou rotas ausentes (como o /auth/me estático no Netlify)
-      // Se já temos o utilizador no localStorage, mantemos ele logado!
-      const savedUser = localStorage.getItem("portal_user");
-      if (savedUser) {
+    // Como é um app estático, apenas revalida o que está no localStorage
+    const savedUser = localStorage.getItem("portal_user");
+    if (savedUser) {
+      try {
         setUser(JSON.parse(savedUser));
-      } else {
+      } catch {
         setUser(false);
       }
+    } else {
+      setUser(false);
     }
   }, []);
 
   useEffect(() => {
-    // Se não tiver utilizador carregado, tenta recarregar
-    if (!user) {
-      reload();
-    }
     const out = () => {
       setUser(false);
       localStorage.removeItem("portal_user");
     };
+
     const access = (event) => {
       if (event.detail) {
         setUser(event.detail);
         localStorage.setItem("portal_user", JSON.stringify(event.detail));
-      } else {
-        reload();
       }
     };
 
@@ -51,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener("auth:logout", out);
       window.removeEventListener("auth:access", access);
     };
-  }, [reload, user]);
+  }, []);
 
   const login = async (email, password) => {
     const { data } = await api.post("/auth/login", { email, password });
