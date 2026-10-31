@@ -15,10 +15,13 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.get("/auth/me");
       setUser(data);
       localStorage.setItem("portal_user", JSON.stringify(data));
-    } catch {
-      // Se falhar a API, mantém o utilizador se ele existir no localStorage para não deslogar à toa
+    } catch (error) {
+      // Ignora erros de rede ou rotas ausentes (como o /auth/me estático no Netlify)
+      // Se já temos o utilizador no localStorage, mantemos ele logado!
       const savedUser = localStorage.getItem("portal_user");
-      if (!savedUser) {
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      } else {
         setUser(false);
       }
     }
