@@ -1,0 +1,15 @@
+{
+  "short_name": "Portal Elétrica",
+  "name": "Portal Elétrica Pro",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#121518",
+  "background_color": "#121518"
+}
